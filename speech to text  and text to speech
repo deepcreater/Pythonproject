@@ -1,0 +1,47 @@
+import pyaudio
+import speech_recognition as sr
+
+print("PyAudio version:", pyaudio.__version__)
+print("SpeechRecognition version:", sr.__version__)
+pip install SpeechRecognition
+pip install pocketsphinx
+
+
+def text_to_speech_from_file(filename):
+    engine = pyttsx3.init()
+    
+    with open(filename, 'r') as file:
+        text = file.read()
+    
+    engine.say(text)
+    engine.runAndWait()
+
+if __name__ == "__main__":
+    text_to_speech_from_file('recognized_text.txt')
+
+
+def record_speech_and_save(filename):
+    recognizer = sr.Recognizer()
+    
+    with sr.Microphone() as source:
+        print("Adjusting for ambient noise, please wait...")
+        recognizer.adjust_for_ambient_noise(source)
+        print("Listening...")
+        audio = recognizer.listen(source)
+        
+        try:
+            # Recognize speech using pocketsphinx (offline)
+            text = recognizer.recognize_sphinx(audio)
+            print("You said:", text)
+            
+            # Save the recognized text to a file
+            with open(filename, 'w') as file:
+                file.write(text)
+        
+        except sr.UnknownValueError:
+            print("Pocketsphinx could not understand audio")
+        except sr.RequestError as e:
+            print(f"Could not request results from pocketsphinx; {e}")
+
+if __name__ == "__main__":
+    record_speech_and_save('recognized_text.txt')
